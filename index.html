@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Belen 2024</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f5f5f5;
+            flex-direction: column;
+        }
+        .container {
+            text-align: center;
+            width: 90%;
+            max-width: 500px;
+        }
+        .logo {
+            width: 100px;
+            height: auto;
+            margin-top: 10px;
+        }
+        h1 {
+            font-size: 32px;
+            margin: 10px 0;
+        }
+        h3 {
+            font-size: 18px;
+            color: #555;
+        }
+        .divider {
+            border-top: 3px solid #333;
+            margin: 15px 0;
+            border-radius: 50px;
+        }
+        .buttons {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 10px;
+        }
+        .buttons button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            color: #fff;
+            background-color: #007bff;
+            transition: background-color 0.3s;
+        }
+        .buttons button:hover {
+            background-color: #0056b3;
+        }
+        #drawingCanvas, #videoElement {
+            width: 90vw;
+            height: 90vw;
+            max-width: 500px;
+            max-height: 500px;
+            border: 2px solid #333;
+            background-color: #f9f9f9;
+            display: none;
+            margin-top: 20px;
+            border-radius: 10px;
+        }
+        .button-container {
+            display: none;
+            margin-top: 10px;
+            gap: 10px;
+            justify-content: center;
+        }
+        .button-container button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            color: #fff;
+            background-color: #007bff;
+            transition: background-color 0.3s;
+        }
+        .button-container button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Logo, Título y Subtítulo -->
+        <img src="cruz1.png" alt="Logo" class="logo">
+        <h1>Belen 2024</h1>
+        <h3>"He aquí donde está nuestro salvador"</h3>
+        
+        <!-- Línea divisoria -->
+        <div class="divider"></div>
+        
+        <!-- Botones de opción -->
+        <div class="buttons">
+            <button onclick="showCanvas()">Dibujar</button>
+            <button onclick="showVideo()">Imitar</button>
+        </div>
+
+        <!-- Canvas de Dibujo y Botones de Dibujo -->
+        <canvas id="drawingCanvas"></canvas>
+        <div class="button-container" id="drawButtons">
+            <button onclick="clearCanvas()">Borrar</button>
+            <button onclick="submitDrawing()">Enviar</button>
+        </div>
+
+        <!-- Video de Imitación -->
+        <video id="videoElement" autoplay></video>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('drawingCanvas');
+        const ctx = canvas.getContext('2d');
+        const video = document.getElementById('videoElement');
+        const drawButtons = document.getElementById('drawButtons');
+        let drawing = false;
+
+        // Función para mostrar el canvas y los botones de dibujo
+        function showCanvas() {
+            video.style.display = 'none';
+            canvas.style.display = 'block';
+            drawButtons.style.display = 'flex';
+            stopVideo();
+        }
+
+        // Función para mostrar el video y ocultar el canvas
+        function showVideo() {
+            canvas.style.display = 'none';
+            drawButtons.style.display = 'none';
+            video.style.display = 'block';
+            startVideo();
+        }
+
+        // Iniciar video
+        function startVideo() {
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(stream => {
+                    video.srcObject = stream;
+                })
+                .catch(error => {
+                    console.error("Error al acceder a la cámara:", error);
+                    alert("No se pudo acceder a la cámara.");
+                });
+        }
+
+        // Detener video
+        function stopVideo() {
+            const stream = video.srcObject;
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                video.srcObject = null;
+            }
+        }
+
+        // Dibujo en el canvas
+        function startDrawing(event) {
+            drawing = true;
+            draw(event);
+        }
+
+        function stopDrawing() {
+            drawing = false;
+            ctx.beginPath();
+        }
+
+        function draw(event) {
+            if (!drawing) return;
+
+            const clientX = event.touches ? event.touches[0].clientX : event.clientX;
+            const clientY = event.touches ? event.touches[0].clientY : event.clientY;
+
+            const rect = canvas.getBoundingClientRect();
+            const x = clientX - rect.left;
+            const y = clientY - rect.top;
+
+            ctx.lineWidth = 2;
+            ctx.lineCap = "round";
+            ctx.strokeStyle = "black";
+
+            ctx.lineTo(x, y);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+        }
+
+        // Limpiar y Enviar Canvas
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function submitDrawing() {
+            alert('Dibujo enviado.');
+        }
+
+        // Eventos de Dibujo
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseout', stopDrawing);
+
+        // Eventos táctiles
+        canvas.addEventListener('touchstart', startDrawing);
+        canvas.addEventListener('touchmove', draw);
+        canvas.addEventListener('touchend', stopDrawing);
+        canvas.addEventListener('touchcancel', stopDrawing);
+    </script>
+</body>
+</html>
